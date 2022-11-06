@@ -65,7 +65,7 @@
 </template>
 <script>
 export default {
-  name: "Drawing",
+  name: "DrawBoard",
   props: {
     msg: String,
   },
@@ -97,7 +97,7 @@ export default {
       historyImageData: [],
       //保存已被撤销的历史画布图片数据
       newHistoryImageData: [],
-      socket: null,
+      // ws: null,
       dataimg: "",
     };
   },
@@ -110,8 +110,11 @@ export default {
     },
   },
   mounted() {
+    console.log(this.$route.query.joinNumber);
     let self = this;
     self.init();
+    this.wsinit();
+
     window.onresize = function () {
       self.init();
     };
@@ -125,7 +128,56 @@ export default {
     this.listen();
     // this.initWebSocket()
   },
+  beforeDestroy() {
+    this.ws.close()
+  },
   methods: {
+    wsinit() {
+      this.bindEvent();
+    },
+    bindEvent() {
+      this.ws = new WebSocket("ws:localhost:8000");
+      // oSendBtn.addEventListener("click", handleSendBtnClick, false)
+      this.ws.addEventListener("open", this.handleOpen, false);
+      this.ws.addEventListener("close", this.handleClose, false);
+      this.ws.addEventListener("error", this.handleError, false);
+      this.ws.addEventListener("message", this.handleMessage, false);
+    },
+    handleSend(a) {
+      console.log(this);
+      console.log("send message", a);
+      this.ws.send(JSON.stringify(a));
+    },
+    handleOpen(e) {
+      console.log("websocket open", e);
+    },
+    handleClose(e) {
+      console.log("websocket close", e);
+    },
+    handleError(e) {
+      console.log("websocket error", e);
+    },
+    handleMessage(e) {
+      console.log(this);
+      console.log("websocket message", e);
+      console.log(e.data);
+
+      let self = this;
+      //转换步骤
+      const file = new FileReader();
+      file.readAsText(e.data, "utf-8");
+      file.onload = function () {
+        // console.log(file.result);
+        const message = JSON.parse(file.result);
+        // ctx.clearRect(0,0,canvas.width,canvas.height);
+        // console.log(message);
+        // 	historyData.push(message);
+        self.historyImageData = message;
+        // console.log(this);
+        self.context.clearRect(0, 0, self.canvas.width, self.canvas.height);
+        self.redraw(self.historyImageData[self.historyImageData.length - 1]);
+      };
+    },
     //初始化画布
     init() {
       this.canvas = document.getElementById("drawingBorad");
@@ -219,6 +271,8 @@ export default {
       self.canvas.onmouseup = function () {
         lastPoint = { x: undefined, y: undefined };
         self.canvasDraw();
+        self.handleSend(self.historyImageData);
+
         console.log(123);
         self.filterObject();
       };
@@ -264,8 +318,8 @@ export default {
     handleErase(fromX, fromY, toX, toY) {
       let ctx = this.context;
       ctx.beginPath();
-    
-      ctx.lineWidth = this.lwidth;
+
+      ctx.lineWidth = this.lwidth * 10;
 
       if (this.flag) {
         this.temp = this.context.strokeStyle;
@@ -284,7 +338,7 @@ export default {
     drawLine(fromX, fromY, toX, toY) {
       let ctx = this.context;
       ctx.beginPath();
-      ctx.lineWidth = this.lwidth;  
+      ctx.lineWidth = this.lwidth;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.moveTo(fromX, fromY);
@@ -371,7 +425,7 @@ export default {
       );
       this.dataimg = this.canvas.toDataURL();
       this.historyImageData.push(this.dataimg);
-      // console.log(this.historyImageData)
+      console.log(typeof(this.dataimg)==='string')
     },
     //撤销
     redo() {
@@ -379,6 +433,8 @@ export default {
       let newHistoryImageData = this.newHistoryImageData;
       if (historyImageData.length > 0) {
         let hisImg = historyImageData.pop();
+        this.handleSend(this.historyImageData);
+
         newHistoryImageData.push(hisImg);
         if (historyImageData.length === 0) {
           this.imageData = null;
@@ -396,6 +452,7 @@ export default {
         this.imageData = newHisImg;
         this.redraw(newHisImg);
         this.historyImageData.push(newHisImg);
+        this.handleSend(this.historyImageData);
       }
     },
     //保存图片
@@ -410,7 +467,7 @@ export default {
     },
     redraw(imgobj) {
       this.clearCanvas();
-      console.log(imgobj);
+      // console.log(imgobj);
       let img = new Image();
       img.src = imgobj;
       img.onload = () => {

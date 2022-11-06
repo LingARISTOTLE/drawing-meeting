@@ -1,17 +1,16 @@
 <template>
-  <div id="app">
-    <Drawing msg="Welcome to Your Vue.js App"/>
-  </div>
+  
+    <!-- <Drawing msg="Welcome to Your Vue.js App"/> -->
+    <router-view></router-view>
+
 </template>
 
 <script>
-import Drawing from './components/drawing.vue'
+// import Drawing from './components/drawing.vue'
 
 export default {
   name: 'App',
-  components: {
-    Drawing
-  }
+  
 }
 </script>
 
