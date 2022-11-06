@@ -10,12 +10,12 @@ import DrawBoard from '../components/DrawBoard'
 // import Board from '../Board'
 
 //创建并暴露一个路由器
-export default new VueRouter({
+const router = new VueRouter({
     routes: [
         {
-			path:'/',
-			redirect:'/login'
-		},
+            path: '/',
+            redirect: '/login'
+        },
         {
             name: 'login',
             path: '/login',
@@ -35,16 +35,27 @@ export default new VueRouter({
             component: JoinBoard
         },
         {
-            name:'drawingboard',
-            path:'/drawing',
-            component:DrawBoard
-            
+            name: 'drawingboard',
+            path: '/drawing',
+            component: DrawBoard
+
         }
-        // {
-        //     name: 'board',
-        //     path: '/board',
-        //     component: Board
-        // }
 
     ]
 })
+// 全局前置路由守卫
+router.beforeEach((to, from, next) => {
+    // console.log(from,to);
+    if (to.path === '/login')
+        next()
+
+    else if (localStorage.getItem('token')) {
+        next()
+    }
+
+
+
+
+}
+)
+export default router

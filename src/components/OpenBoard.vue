@@ -1,7 +1,8 @@
 <template>
-  <div>
-    <Board/>
-  </div>
+
+  <!-- <Board/> -->
+  <div></div>
+  
 </template>
 
 <script>
@@ -17,4 +18,5 @@ export default {
 </script>
 
 <style>
+
 </style>

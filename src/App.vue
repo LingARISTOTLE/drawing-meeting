@@ -1,28 +1,42 @@
 <template>
   
-    <!-- <Drawing msg="Welcome to Your Vue.js App"/> -->
-    <router-view></router-view>
+  
 
+    <router-view></router-view>
+    
+ 
 </template>
 
 <script>
-// import Drawing from './components/drawing.vue'
 
+// import Login from './components/Login.vue'
 export default {
-  name: 'App',
-  
-}
+  name: "App",
+  components:{  }
+};
 </script>
 
 <style>
-*{margin: 0;padding: 0;box-sizing: border-box;}
-*::before{box-sizing: border-box;}
-*::after{box-sizing: border-box;}
-ul{padding: 0; }
-li{list-style: none;}
-.clearfix::after{
-    content: '';
-    display: block;
-    clear: both;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+*::before {
+  box-sizing: border-box;
+}
+*::after {
+  box-sizing: border-box;
+}
+ul {
+  padding: 0;
+}
+li {
+  list-style: none;
+}
+.clearfix::after {
+  content: "";
+  display: block;
+  clear: both;
 }
 </style>

@@ -26,6 +26,11 @@
       <div class="icon-div icon" @click="clearCanvas()">
         <icon name="clear" scale="4"></icon>
       </div>
+      <!-- --------------- -->
+      <div class="icon-div icon" @click="banEdit()">
+        <icon name="clear" scale="4"></icon>
+      </div>
+      <!-- --------------- -->
       <div class="icon-div icon" @click="redo()">
         <icon
           :name="historyImageData.length > 0 ? 'redo' : 'grey-redo'"
@@ -66,9 +71,7 @@
 <script>
 export default {
   name: "DrawBoard",
-  props: {
-    msg: String,
-  },
+
   data() {
     return {
       temp: "black",
@@ -110,6 +113,8 @@ export default {
     },
   },
   mounted() {
+    console.log(this.$route.query.username);
+
     console.log(this.$route.query.joinNumber);
     let self = this;
     self.init();
@@ -128,15 +133,18 @@ export default {
     this.listen();
     // this.initWebSocket()
   },
+  banEdit() {
+    this.handleSend();
+  },
   beforeDestroy() {
-    this.ws.close()
+    this.ws.close();
   },
   methods: {
     wsinit() {
       this.bindEvent();
     },
     bindEvent() {
-      this.ws = new WebSocket("ws:localhost:8000");
+      this.ws = new WebSocket(`ws://10.224.202.17:8080/websocket/${localStorage.getItem('username')}/${this.$route.query.joinNumber}`);
       // oSendBtn.addEventListener("click", handleSendBtnClick, false)
       this.ws.addEventListener("open", this.handleOpen, false);
       this.ws.addEventListener("close", this.handleClose, false);
@@ -196,6 +204,7 @@ export default {
       let textPoint = { x: undefined, y: undefined };
 
       self.canvas.onmousedown = function (e) {
+        if (e.button !== 0) return;
         self.paintTypeArr["painting"] = true;
 
         let x1 = e.clientX;
@@ -232,6 +241,8 @@ export default {
         self.stopBubble(thee);
       };
       self.canvas.onmousemove = function (e) {
+        if (e.button !== 0) return;
+
         let x2 = e.clientX;
         let y2 = e.clientY;
         x2 -= rect.left;
@@ -268,7 +279,9 @@ export default {
         var thee = e ? e : window.event;
         self.stopBubble(thee);
       };
-      self.canvas.onmouseup = function () {
+      self.canvas.onmouseup = function (e) {
+        if (e.button !== 0) return;
+
         lastPoint = { x: undefined, y: undefined };
         self.canvasDraw();
         self.handleSend(self.historyImageData);
@@ -280,7 +293,6 @@ export default {
     //更新绘画类型数组paintTypeArr的状态
     filterObject(type) {
       if (type !== "erase") this.context.strokeStyle = this.temp;
-
       if (!type) {
         for (const key in this.paintTypeArr) {
           this.paintTypeArr[key] = false;
@@ -425,7 +437,7 @@ export default {
       );
       this.dataimg = this.canvas.toDataURL();
       this.historyImageData.push(this.dataimg);
-      console.log(typeof(this.dataimg)==='string')
+      console.log(typeof this.dataimg === "string");
     },
     //撤销
     redo() {
