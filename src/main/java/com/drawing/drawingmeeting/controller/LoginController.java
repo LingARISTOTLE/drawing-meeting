@@ -16,10 +16,10 @@ public class LoginController {
     @Autowired
     LoginMapper loginMapper;
 
-//    @GetMapping("/loginTest")
-//    public String getContext() {
-//        return "ceshi";
-//    }
+    @GetMapping("/loginTest")
+    public String getContext() {
+        return "ceshi";
+    }
 
     @GetMapping("/login/{username}/{password}")
     public String login(@PathVariable("username") String username, @PathVariable("password") String password) {
