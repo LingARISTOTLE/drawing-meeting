@@ -18,6 +18,7 @@ public class LoginController {
 
     @GetMapping("/loginTest")
     public String getContext() {
+        System.out.println("测试git能不能在idea进行push");
         return "ceshi";
     }
 
